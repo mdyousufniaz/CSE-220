@@ -16,10 +16,18 @@ class FourierSeries:
         self.L = L
         self.terms = terms
 
-    def x_range(self, N: int) -> np.ndarray:
+    def x_values(self, N: int) -> np.ndarray:
         return np.linspace(-self.L, self.L, N)
+    
+    def integration_by_parts(self, N: int, func, n: int):
+        x_values = self.x_values(N)
 
-    def calculate_a0(self, N=1000):
+        return np.trapezoid(
+            y=self.func(x_values) * func(n * np.pi / self.L * x_values),
+            x=x_values
+        )
+
+    def calculate_a0(self, N=1000) -> float:
         """
         Step 1: Compute the a0 coefficient, which is the average (DC component) of the function over one period.
         
@@ -32,7 +40,10 @@ class FourierSeries:
         Returns:
         - a0: The computed a0 coefficient.
         """
-        return 1 / (2 * L) * np.trapezoid
+        return 1 / (2 * L) * np.trapezoid(
+            y=self.func(self.x_values(N)),
+            x=self.x_values()
+        )
 
     def calculate_an(self, n, N=1000):
         """
@@ -48,7 +59,7 @@ class FourierSeries:
         Returns:
         - an: The computed an coefficient.
         """
-        pass # Implement this method
+        return self.integration_by_parts(N, np.cos, n)
 
     def calculate_bn(self, n, N=1000):
         """
@@ -65,7 +76,7 @@ class FourierSeries:
         - bn: The computed bn coefficient.
         """
 
-        pass # Implement this method
+        return self.integration_by_parts(N, np.sin, n)
 
     def approximate(self, x):
         """
@@ -87,7 +98,16 @@ class FourierSeries:
         # Compute each harmonic up to the specified number of terms
 
 
-        pass  # Implement this method
+        # sum = self.calculate_a0() / 2
+        sum = np.zeros_like(x)
+        for n in range(0, 100):
+            for c_n, func in zip(
+                (self.calculate_an(n), self.calculate_bn(n)),
+                (np.cos, np.sin)
+            ):
+                sum += c_n * func(n * np.pi * self.L * x)
+            
+        return sum
 
 
 
@@ -104,9 +124,9 @@ class FourierSeries:
         # Compute Fourier series approximation
 
         
-        x= None # Implement this line
-        original = None # Implement this line
-        approximation = None    # Implement this line
+        x= self.x_values()
+        original = self.func(x)
+        approximation = self.approximate(x)
 
         # Plotting
         plt.figure(figsize=(10, 6))
