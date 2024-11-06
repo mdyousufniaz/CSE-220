@@ -16,7 +16,7 @@ class FourierSeries:
         self.L = L
         self.terms = terms
 
-    def x_values(self, N: int) -> np.ndarray:
+    def x_values(self, N: int = 1000) -> np.ndarray:
         return np.linspace(-self.L, self.L, N)
     
     def integration_by_parts(self, N: int, func, n: int):
@@ -40,9 +40,9 @@ class FourierSeries:
         Returns:
         - a0: The computed a0 coefficient.
         """
-        return 1 / (2 * L) * np.trapezoid(
+        return 1 / (2 * self.L) * np.trapezoid(
             y=self.func(self.x_values(N)),
-            x=self.x_values()
+            x=self.x_values(N)
         )
 
     def calculate_an(self, n, N=1000):
@@ -59,7 +59,7 @@ class FourierSeries:
         Returns:
         - an: The computed an coefficient.
         """
-        return self.integration_by_parts(N, np.cos, n)
+        return 1 / self.L * self.integration_by_parts(N, np.cos, n)
 
     def calculate_bn(self, n, N=1000):
         """
@@ -76,7 +76,7 @@ class FourierSeries:
         - bn: The computed bn coefficient.
         """
 
-        return self.integration_by_parts(N, np.sin, n)
+        return 1 / self.L * self.integration_by_parts(N, np.sin, n)
 
     def approximate(self, x):
         """
@@ -97,17 +97,16 @@ class FourierSeries:
         
         # Compute each harmonic up to the specified number of terms
 
-
-        # sum = self.calculate_a0() / 2
         sum = np.zeros_like(x)
-        for n in range(0, 100):
+
+        for n in range(1, self.terms):
             for c_n, func in zip(
                 (self.calculate_an(n), self.calculate_bn(n)),
                 (np.cos, np.sin)
             ):
-                sum += c_n * func(n * np.pi * self.L * x)
+                sum += c_n * func(n * np.pi / self.L * x)
             
-        return sum
+        return sum + self.calculate_a0()
 
 
 
@@ -124,7 +123,7 @@ class FourierSeries:
         # Compute Fourier series approximation
 
         
-        x= self.x_values()
+        x = self.x_values()
         original = self.func(x)
         approximation = self.approximate(x)
 
