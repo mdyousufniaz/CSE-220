@@ -19,10 +19,10 @@ class FourierSeries:
     def x_values(self, N: int = 1000) -> np.ndarray:
         return np.linspace(-self.L, self.L, N)
     
-    def integration_by_parts(self, N: int, func, n: int):
+    def calculate_coefficient(self, N: int, func, n: int):
         x_values = self.x_values(N)
 
-        return np.trapezoid(
+        return 1 / self.L * np.trapezoid(
             y=self.func(x_values) * func(n * np.pi / self.L * x_values),
             x=x_values
         )
@@ -40,9 +40,11 @@ class FourierSeries:
         Returns:
         - a0: The computed a0 coefficient.
         """
+        x_values = self.x_values(N)
+
         return 1 / (2 * self.L) * np.trapezoid(
-            y=self.func(self.x_values(N)),
-            x=self.x_values(N)
+            y=self.func(x_values),
+            x=x_values
         )
 
     def calculate_an(self, n, N=1000):
@@ -59,7 +61,7 @@ class FourierSeries:
         Returns:
         - an: The computed an coefficient.
         """
-        return 1 / self.L * self.integration_by_parts(N, np.cos, n)
+        return self.calculate_coefficient(N, np.cos, n)
 
     def calculate_bn(self, n, N=1000):
         """
@@ -76,7 +78,7 @@ class FourierSeries:
         - bn: The computed bn coefficient.
         """
 
-        return 1 / self.L * self.integration_by_parts(N, np.sin, n)
+        return self.calculate_coefficient(N, np.sin, n)
 
     def approximate(self, x):
         """
@@ -97,7 +99,7 @@ class FourierSeries:
         
         # Compute each harmonic up to the specified number of terms
 
-        sum = np.zeros_like(x)
+        sum = np.full(x.shape, self.calculate_a0())
 
         for n in range(1, self.terms):
             for c_n, func in zip(
@@ -106,7 +108,7 @@ class FourierSeries:
             ):
                 sum += c_n * func(n * np.pi / self.L * x)
             
-        return sum + self.calculate_a0()
+        return sum
 
 
 
@@ -150,30 +152,32 @@ def target_function(x, function_type="square"):
     Returns:
     - The values of the specified target function at each point in x.
     """
+    PERIOD = np.pi
+
     if function_type == "square":
         # Square wave: +1 when sin(x) >= 0, -1 otherwise
 
-        pass  # Implement this function
+        return np.where(np.sin(x) >= 0, 1, -1)
     
     elif function_type == "sawtooth":
         # Sawtooth wave: linearly increasing from -1 to 1 over the period
 
-        pass  # Implement this function
+        return 2 * ((x / (PERIOD)) % 1) - 1
     
     elif function_type == "triangle":
         # Triangle wave: periodic line with slope +1 and -1 alternately
 
-        pass  # Implement this function
+        return 2 * np.abs(target_function(x, "sawtooth")) - 1
     
     elif function_type == "sine":
         # Pure sine wave
-
-        pass  # Implement this function
+        
+        return np.sin(x)
     
     elif function_type == "cosine":
         # Pure cosine wave
 
-        pass  # Implement this function
+        return np.cos(x)
     
     else:
         raise ValueError("Invalid function_type. Choose from 'square', 'sawtooth', 'triangle', 'sine', or 'cosine'.")
