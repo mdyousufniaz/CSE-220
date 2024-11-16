@@ -2,6 +2,8 @@ import numpy as np
 import scipy.io.wavfile as wavfile
 import matplotlib.pyplot as plt
 
+import FT_basic
+
 # Step 1: Load the audio file
 sample_rate, data = wavfile.read('buzzjc.wav')
 data = data / np.max(np.abs(data))  # Normalize to -1 to 1
@@ -33,6 +35,7 @@ frequencies = np.linspace(0, max_freq, num=num_freqs)
 # Step 2: Apply Fourier Transform using trapezoidal integration
 def fourier_transform(signal, frequencies, sampled_times):
     # use your code here from the first task
+    return FT_basic.fourier_transform(signal, frequencies, sampled_times)
     
 
 # Apply FT with trapezoidal integration
@@ -66,6 +69,7 @@ plt.show()
 # Step 4: Apply Inverse Fourier Transform using trapezoidal integration
 def inverse_fourier_transform(ft_signal, frequencies, sampled_times):
     # use your code here from the first task
+    return FT_basic.inverse_fourier_transform(ft_signal, frequencies, sampled_times)
 
 # Step 4.1: Reconstruct the signal using IFT
 filtered_data = inverse_fourier_transform(filtered_ft_data, frequencies, sampled_times)
