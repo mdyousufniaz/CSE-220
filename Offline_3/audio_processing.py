@@ -2,6 +2,8 @@ import numpy as np
 import scipy.io.wavfile as wavfile
 import matplotlib.pyplot as plt
 
+from collections import Counter
+
 import FT_basic
 
 # Step 1: Load the audio file
@@ -56,7 +58,7 @@ filtered_ft_data[1] = ft_data[1].copy()
 
 # Try to filter out the frequencies for which you get the best result.
 # Experiment with different ideas like make the values for low frequencies zero, or make high frequencies zero, or make a range of frequencies zero. 
-
+frequencies = np.where(frequencies < 0.2 * max_freq, 0, frequencies)
 
 # Step 3.1: Visualize the filtered frequency spectrum
 plt.figure(figsize=(12, 6))
