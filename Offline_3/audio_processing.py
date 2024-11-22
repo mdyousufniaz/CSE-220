@@ -2,8 +2,6 @@ import numpy as np
 import scipy.io.wavfile as wavfile
 import matplotlib.pyplot as plt
 
-from collections import Counter
-
 import FT_basic
 
 # Step 1: Load the audio file
