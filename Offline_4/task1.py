@@ -1,5 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
+
+from util import DFT, IDFT, plot_DTS, plot_MS, plot_cross_correlation
 n=50
 samples = np.arange(n) 
 sampling_rate=100
@@ -33,9 +34,36 @@ def generate_signals(frequency=5):
 
     # Applying random shift
     shift_samples = np.random.randint(-n // 2, n // 2)  # Random shift
+    # shift_samples = 24
     print(f"Shift Samples: {shift_samples}")
     signal_B = np.roll(noisy_signal_B, shift_samples)
     
     return signal_A, signal_B
 
 #implement other functions and logic
+
+signal_A, signal_B = generate_signals()
+
+plot_DTS(samples, signal_A, 'A', 'blue')
+
+dft_signal_A = DFT(signal_A)
+plot_MS(samples, dft_signal_A, 'A', 'blue')
+
+plot_DTS(samples, signal_B, 'B', 'red')
+
+dft_signal_B = DFT(signal_B)
+plot_MS(samples, dft_signal_B, 'B', 'red')
+
+bias = n // 2 - 1
+r_n = np.roll(IDFT(dft_signal_A * np.conj(dft_signal_B)).real, bias)
+
+plot_cross_correlation(bias - samples, r_n)
+
+sample_lag = int(bias - np.argmax(r_n))
+print(f"{sample_lag = }")
+distance = float(abs(sample_lag) * wave_velocity / sampling_rate)
+print(f"{distance = }")
+
+plot_DTS(samples, np.roll(signal_B, -sample_lag), 'Aligned', 'midnightblue')
+
+
